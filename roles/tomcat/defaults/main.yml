@@ -1,0 +1,4 @@
+---
+# defaults file for roles/tomcat
+tomcat_package: tomcat
+tomcat_version: latest

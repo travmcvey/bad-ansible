@@ -1,0 +1,14 @@
+---
+# handlers file for roles/haproxy
+
+
+- name: Start HAProxy
+  service:
+    name: haproxy
+    state: started
+    enabled: yes
+
+- name: Restart HAProxy
+  service:
+    name: haproxy
+    state: restarted

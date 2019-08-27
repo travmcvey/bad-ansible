@@ -1,0 +1,30 @@
+---
+# defaults file for roles/base
+
+base_repos:
+  - name: Red Hat Enterprise Linux 7
+    description: Main RHEL 7 packages
+    baseurl: http://admin.na.shared.opentlc.com/repos/ocp/3.6//rhel-7-server-rpms
+    enabled: yes
+    gpgcheck: no
+  - name: Red Hat Enterprise Linux 7 Common
+    description: RHEL 7 Common packages
+    baseurl: http://admin.na.shared.opentlc.com/repos/ocp/3.6//rhel-7-server-rh-common-rpms
+    enabled: yes
+    gpgcheck: no
+  - name: Red Hat Enterprise Linux 7 Extras
+    description: RHEL 7 Extra packages
+    baseurl: hhttp://admin.na.shared.opentlc.com/repos/ocp/3.6//rhel-7-server-extras-rpms
+    enabled: yes
+    gpgcheck: no
+  - name: Red Hat Enterprise Linux 7 Optional
+    description: RHEL 7 Optional packages
+    baseurl: http://admin.na.shared.opentlc.com/repos/ocp/3.6//rhel-7-server-optional-rpms
+    enabled: yes
+    gpgcheck: no
+  - name: EPEL packages for Enterprise Linux 7
+    description: EPEL repo
+    baseurl: http://download.fedoraproject.org/pub/epel/7/$basearch
+    enabled: yes
+    gpgcheck: no
+    failovermethod: priority

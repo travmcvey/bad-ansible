@@ -1,0 +1,4 @@
+- import_playbook: main.yml
+  vars:
+    app_port: 80
+    GUID: 6169

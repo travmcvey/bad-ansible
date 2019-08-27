@@ -1,0 +1,13 @@
+---
+# handlers file for roles/tomcat
+
+
+- name: Start Tomcat
+  service:
+    name: tomcat
+    enabled: yes
+
+- name: Restart Tomcat
+  service:
+    name: tomcat
+    state: restarted

@@ -1,0 +1,7 @@
+---
+# defaults file for roles/haproxy
+
+haproxy_package: haproxy
+haproxy_version: latest
+listen_port: 80
+app_port: 8080

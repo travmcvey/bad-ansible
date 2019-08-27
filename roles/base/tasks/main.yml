@@ -1,0 +1,12 @@
+---
+# tasks file for roles/base
+
+- name: enable repos
+  yum_repository:
+    name: "{{ item.name }}"
+    description: "{{ item.description }}"
+    baseurl: "{{ item.baseurl }}"
+    failovermethod: "{{ item.failovermethod | default('roundrobin') }}"
+    enabled: "{{ item.enabled }}"
+    gpgcheck: "{{ item.gpgcheck }}"
+  with_items: "{{ base_repos }}"
