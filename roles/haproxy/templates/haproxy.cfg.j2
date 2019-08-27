@@ -26,5 +26,5 @@ backend app-servers
     balance roundrobin
     option forwardfor
     {% for server in groups["apps"] %}
-    server {{ server }} {{ server }}.{{GUID}}.internal:{{ app_port }} cookie {{ server }} check
+    server {{ server }} {{ server }}:{{ app_port }} cookie {{ server }} check
     {% endfor %}
