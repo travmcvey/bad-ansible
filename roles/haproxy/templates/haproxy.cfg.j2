@@ -17,7 +17,7 @@ defaults
         timeout server 50000
 
 frontend hafrontend
-    bind *:{{ listen_port }}80
+    bind *:{{ listen_port }}
     mode http
     default_backend app-servers
 
