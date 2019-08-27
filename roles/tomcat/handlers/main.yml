@@ -6,6 +6,7 @@
   service:
     name: tomcat
     enabled: yes
+    state: started
 
 - name: Restart Tomcat
   service:
