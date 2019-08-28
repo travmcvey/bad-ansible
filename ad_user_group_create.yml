@@ -1,0 +1,8 @@
+- name: Create Users
+  hosts: windows
+  vars:
+    GUID: 3cbf
+  gather_facts: true
+  become: true
+  roles:
+    - name: win_ad_user

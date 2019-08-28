@@ -1,0 +1,20 @@
+---
+# tasks file for win_ad_user
+
+- name: Ensure User Groups are present before users are created
+  win_domain_group:
+    name: "{{ item.group_name }}"
+    scope: "{{ item.group_scope }}"
+  loop: "{{ win_ad_user_users }}"
+
+- name: Ensure Users passed are present
+  win_domain_user:
+    name: "{{ item.name }}"
+    firstname: "{{ item.first_name }}"
+    surname: "{{ item.last_name }}"
+    password: "{{ item.password }}"
+    state: "{{ item.state }}"
+    email: "{{ item.email }}"
+    groups: 
+      - "{{ item.group_name }}"
+  loop: "{{ win_ad_user_users }}"
