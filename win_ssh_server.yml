@@ -1,0 +1,6 @@
+- name: SSH
+  hosts: windows
+  gather_facts: false
+  become: true
+  roles:
+    - name: win_service_config
