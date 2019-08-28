@@ -1,0 +1,36 @@
+---
+# tasks file for win_ad_install
+
+- name: Install required Features
+  win_feature:
+    name: AD-Domain-Services
+    state: present
+    include_sub_features: yes
+    include_management_tools: yes
+  register: win_feature
+
+- name: Configure Active Directory
+  win_domain:
+    dns_domain_name: "{{ ad_domain_name }}"
+    safe_mode_password: "{{ ad_safe_mode_password }}"
+  register: domain_install
+
+- name: Reboot if installing AD-Domain-Services feature requires it
+  win_reboot:
+  when: win_feature.reboot_required or domain_install.reboot_required
+
+- name: Prints out the domain list available
+  win_command: nltest /dclist:"{{ ad_domain_name }}"
+  register: domain_list
+
+- name: Print out the registered output
+  Debug:
+    var: domain_list
+
+- name: Create Admin Account
+  win_domain_user:
+    name: "{{ ad_admin_user }}"
+    password: "{{ ad_admin_password }}"
+    state: present
+    groups:
+      - Domain Admins

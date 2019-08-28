@@ -1,0 +1,6 @@
+- name: Configure Active Directory
+  hosts: Windows
+  gather_facts: false
+  become: true
+  roles:
+    - name: win_ad_install
