@@ -5,7 +5,7 @@
   yum:
     name: "{{ packages }}"
   vars:
-    - "{{ win_management_packages }}"
+    packages: "{{ win_management_packages }}"
 
 - name: Install python packages
   pip:
