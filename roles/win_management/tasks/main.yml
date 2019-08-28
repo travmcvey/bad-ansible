@@ -8,7 +8,7 @@
     "{{ win_management_packages }}"
 
 - name: Install python packages
-  - pip:
+  pip:
     name: "{{ win_management_pip_packages }}"
 
 - name: Configure kerberos
