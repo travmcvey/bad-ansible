@@ -1,9 +1,8 @@
 ---
 # defaults file for win_service_config
 
-win_service_config_packages:
-  - openssh
-
+win_service_config_package: openssh
+win_service_config_package_params: /SSHServerFeature
 win_service_config_service_name: SSHD
 win_service_local_port: 22
 win_service_protocol_name: tcp
