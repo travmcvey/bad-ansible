@@ -1,9 +1,9 @@
 [realms]
 
- AD1.{{ GUID.capitalize() }}.EXAMPLE.OPENTLC.COM = {
+ AD1.{{ GUID.upper() }}.EXAMPLE.OPENTLC.COM = {
 
  kdc = ad1.{{ GUID }}.example.opentlc.com
  }
 
 [domain_realm]
- .ad1.{{ GUID }}.example.opentlc.com = AD1.{{ GUID.capitalize() }}.EXAMPLE.OPENTLC.COM
+ .ad1.{{ GUID }}.example.opentlc.com = AD1.{{ GUID.upper() }}.EXAMPLE.OPENTLC.COM
