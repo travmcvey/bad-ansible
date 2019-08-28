@@ -1,0 +1,26 @@
+---
+# tasks file for win_service_config
+
+- name: Install required packages
+  win_chocolatey:
+    name: '{{ item }}'
+    state: present
+  loop: "{{ win_service_config_packages }}"
+  when: ansible_distribution == "Microsoft Windows Server 2012 R2 Standard"
+
+- name: Enable Services (If any)
+  win_service:
+    name: "{{ win_service_config_service_name }}"
+    start_mode: auto
+    state: started
+  when: ansible_distribution == "Microsoft Windows Server 2012 R2 Standard"
+
+- name: Enable firewall for Given Service
+  win_firewall_rule:
+    name: "{{ win_service_config_service_name }}"
+    localport: "{{ win_service_local_port }}"
+    action: allow
+    direction: in
+    protocol: "{{ win_service_protocol_name }}"
+    state: present
+    enabled: yes
