@@ -1,12 +1,36 @@
 ---
 # defaults file for win_ad_user
 
-win_ad_user_users:
+win_ad_user_user:
   - name: james
     first_name: James
     last_name: Jockey
     password: redhat@123
     email: "james@ad1.{{GUID}}.example.opentlc.com"
     group_name: dev
+    group_scope: domainlocal
+    state: present
+  - name: bill
+    first_name: Bill
+    last_name: Gates
+    password: redhat@123
+    email: "bill@ad1.{{GUID}}.example.opentlc.com"
+    group_name: dev
+    group_scope: domainlocal
+    state: present
+  - name: mickey
+    first_name: Mickey
+    last_name: Mouse
+    password: redhat@123
+    email: "mickey@ad1.{{GUID}}.example.opentlc.com"
+    group_name: qa
+    group_scope: domainlocal
+    state: present
+  - name: donald
+    first_name: Donald
+    last_name: Duck
+    password: redhat@123
+    email: "donald@ad1.{{GUID}}.example.opentlc.com"
+    group_name: qa
     group_scope: domainlocal
     state: present
