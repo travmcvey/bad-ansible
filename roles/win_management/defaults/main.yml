@@ -1,0 +1,14 @@
+---
+# defaults file for win_management
+
+win_management_packages:
+  - python-devel
+  - krb5-devel
+  - krb5-libs
+  - krb5-workstation
+  - python-pip
+  - gcc
+
+win_management_pip_packages:
+  - pywinrm>0.2.2
+  - pywinrm[kerberos]

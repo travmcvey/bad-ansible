@@ -22,9 +22,10 @@
 - name: Prints out the domain list available
   win_command: nltest /dclist:"{{ ad_domain_name }}"
   register: domain_list
+  changed_when: domain_list.rc != 0
 
 - name: Print out the registered output
-  Debug:
+  debug:
     var: domain_list
 
 - name: Create Admin Account

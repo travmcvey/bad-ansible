@@ -1,0 +1,17 @@
+---
+# tasks file for win_management
+
+- name: Install dependencies
+  yum:
+    name: "{{ packages }}"
+  vars:
+    "{{ win_management_packages }}"
+
+- name: Install python packages
+  - pip:
+    name: "{{ win_management_pip_packages }}"
+
+- name: Configure kerberos
+  template:
+    src: krb5.conf.j2
+    dest: /etc/krb5.conf.d/ansible.conf

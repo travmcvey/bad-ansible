@@ -1,6 +1,13 @@
 - name: Configure Active Directory
-  hosts: Windows
+  hosts: windows
   gather_facts: false
   become: true
   roles:
     - name: win_ad_install
+
+- name: Configure tower nodes
+  hosts: towers
+  gather_facts: false
+  become: true
+  roles:
+    - name: win_management
