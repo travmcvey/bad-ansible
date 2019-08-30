@@ -1,0 +1,13 @@
+---
+# defaults file for k8_management
+
+HTPasswd:
+  location: /root/htpasswd
+  users:
+    - name: test
+      password: Admin123!
+    - name: John
+      password: Admin123!
+  namespace: openshift-config
+  secret_name: htpass-secret
+

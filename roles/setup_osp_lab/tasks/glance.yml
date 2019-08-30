@@ -1,0 +1,14 @@
+---
+# Setup the glance Image.
+- name: Download RHEL image
+  get_url:
+    url: "{{ glance.url }}"
+    dest: "{{ glance.dest }}"
+- name: Load RHEL image into Glance
+  os_image:
+    cloud: ospcloud
+    name: rhel-guest
+    container_format: bare
+    disk_format: qcow2
+    state: present
+    filename: "{{ glance.dest }}"

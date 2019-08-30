@@ -1,0 +1,48 @@
+---
+# defaults file for setup_osp_instances
+create: true
+instances:
+  - name: app1
+    metadata: group=apps, deployment_name=QA
+    flavor: m2.small
+    keypair: ansible_ssh
+    networks:
+      - net-name: private_network
+    public: public_network
+    image: rhel-guest
+    security_groups:
+      - all
+      - apps
+  - name: app2
+    metadata: group=apps, deployment_name=QA
+    flavor: m2.small
+    keypair: ansible_ssh
+    networks:
+      - net-name: private_network
+    public: public_network
+    image: rhel-guest
+    security_groups:
+      - all
+      - apps
+  - name: db
+    metadata: group=appdbs, deployment_name=QA
+    flavor: m2.small
+    keypair: ansible_ssh
+    networks:
+      - net-name: private_network
+    public: public_network
+    image: rhel-guest
+    security_groups:
+      - all
+      - db
+  - name: frontend
+    metadata: group=frontends, deployment_name=QA
+    flavor: m2.small
+    keypair: ansible_ssh
+    networks:
+      - net-name: private_network
+    public: public_network
+    image: rhel-guest
+    security_groups:
+      - all
+      - frontend

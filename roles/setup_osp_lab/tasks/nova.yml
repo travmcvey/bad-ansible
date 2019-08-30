@@ -1,0 +1,11 @@
+---
+# Configure all things nova
+
+- name: Create flavor with metadata
+  os_nova_flavor:
+    state: present
+    name: "{{ item.name }}"
+    ram: "{{ item.ram }}"
+    vcpus: "{{ item.vcpus }}"
+    disk: "{{ item.disk }}"
+  loop: "{{ nova.flavors }}"

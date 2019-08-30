@@ -1,0 +1,10 @@
+---
+# tasks file for setup_osp_instances
+
+- name: create servers
+  include_tasks: create_instances.yml
+  when: create == true
+
+- name: delete servers
+  include_tasks: cleanup_instances.yml
+  when: create != true

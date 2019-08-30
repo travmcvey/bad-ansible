@@ -1,0 +1,24 @@
+--- 
+# Configure Users and Keypairs
+# When we have more time, check if the keypair(s) exist before going into the Block.
+# Also support multiple keys from a laptop?
+- name: Attempt to copy and configure keypair if needed
+  block: 
+    - name: Copy public over when running from laptop
+      copy: 
+        src: "{{ keystone.laptop.on_laptop }}"
+        dest: "{{ keystone.laptop.dest }}"
+      when:  keystone.laptop.from_laptop == true
+    - name: Configure Keypairs
+      os_keypair:
+        state: present
+        name: "{{ item.name }}"
+        public_key_file: "{{ item.key_file }}"
+      loop: "{{ keystone.keypairs }}"
+  always:
+    - name: Remove copied file
+      file:
+        path: "{{ keystone.laptop.dest }}"
+        state: absent
+      when: keystone.laptop.from_laptop == true
+  

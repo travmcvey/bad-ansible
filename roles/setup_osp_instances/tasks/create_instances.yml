@@ -1,0 +1,19 @@
+---
+# Create instances passed in, by default we use the instances in the defaults/main.yml
+- name: Create a server instance
+  os_server:
+    name: "{{ item.name }}"
+    image: "{{ item.image }}"
+    meta: "{{ item.metadata }}"
+    flavor: "{{ item.flavor }}"
+    security_groups: "{{ item.security_groups }}"
+    key_name: "{{ item.keypair }}"
+    nics: "{{ item.networks }}"
+    auto_ip: yes
+    userdata: |
+      #!/bin/bash
+      curl -o /tmp/openstack.pub http://www.opentlc.com/download/ansible_bootcamp/openstack_keys/openstack.pub
+      cat /tmp/openstack.pub >> /home/cloud-user/.ssh/authorized_keys
+      curl -o /tmp/internal.repo http://www.opentlc.com/download/ansible_bootcamp/repo/internal.repo
+      cp /tmp/internal.repo /etc/yum.repos.d/internal.repo
+  loop: "{{ instances }}"

@@ -1,0 +1,44 @@
+---
+
+# Setup Neutron things here for the OSP Lab
+- name: Configure networks
+  os_network:
+    state: present
+    name: "{{ item.name }}"
+    external: "{{ item.external }}"
+  loop: "{{ neutron.networks }}"
+
+- name: Configure subnets
+  os_subnet:
+    state: present
+    network_name: "{{ item.network }}"
+    name: "{{ item.name }}"
+    cidr: "{{ item.cidr }}"
+    dns_nameservers: "{{ item.nameservers | default('8.8.8.8') }}"
+    host_routes: "{{ item.routes }}"
+  loop: "{{ neutron.subnets }}"
+
+- name: Configure routers
+  os_router:
+    state: present
+    name: "{{ item.name }}"
+    network: "{{ item.network }}"
+    interfaces: "{{ item.interfaces }}"
+    external_fixed_ips: "{{ item.external_fixed_ips }}"
+  loop: "{{ neutron.routers }}"
+
+- name: Configure Security Groups
+  os_security_group:
+    state: present
+    name: "{{ item.name }}"
+    description: "{{ item.description }}"
+  loop: "{{ neutron.security_groups }}"
+
+- name: Configure Security Group Rules
+  os_security_group_rule:
+    security_group: "{{ item.security_group }}"
+    protocol: "{{ item.protocol }}"
+    port_range_min: "{{ item.port_range_min | default(0) }}"
+    port_range_max: "{{ item.port_range_max | default(0) }}"
+    remote_ip_prefix: "{{ item.remote_ip_prefix | default() }}"
+  loop: "{{ neutron.security_group_rules }}"

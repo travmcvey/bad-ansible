@@ -1,0 +1,89 @@
+---
+# defaults file for setup_osp_lab
+keystone:
+  laptop:
+    from_laptop: true
+    on_laptop: ~/.ssh/id_rsa.pub
+    dest: /root/id_rsa.pub
+  keypairs: 
+    - name: ansible_ssh
+      key_file: /root/id_rsa.pub
+
+glance:
+  url: http://www.opentlc.com/download/osp_advanced_networking/rhel-guest-image-7.2-20151102.0.x86_64.qcow2
+  dest: /root/rhel-guest-image-7.2-20151102.0.x86_64.qcow2
+
+neutron:
+  networks:
+    - name: public_network
+      external: true
+    - name: private_network
+      external: false
+  subnets:
+    - name: public
+      network: public_network
+      cidr: 10.10.10.0/24
+      routes:
+        - destination: 0.0.0.0/0
+          nexthop: 10.10.10.0
+        - destination: 192.168.0.0/24
+          nexthop: 192.168.0.0
+      nameservers:
+        - 8.8.8.7
+        - 8.8.8.8
+    - name: private
+      network: private_network
+      cidr: 192.168.100.0/24
+      routes:
+       - destination: 0.0.0.0/0
+         nexthop: 192.168.100.1
+  routers:
+    - name: router1
+      network: public_network
+      interfaces:
+        - private  
+      external_fixed_ips:
+        - { subnet: public}
+  security_groups:
+    - name: all
+      description: A default rule for all deployed servers
+    - name: apps
+      description: Security group for App servers
+    - name: db
+      description: Security group for AppDB servers
+    - name: frontend
+      description: Security group for Frontend servers
+  security_group_rules:
+    - security_group: all
+      protocol: tcp
+      port_range_min: 22
+      port_range_max: 22
+      remote_ip_prefix: 0.0.0.0/0 # This should be restricted
+    - security_group: all
+      protocol: icmp
+      remote_ip_prefix: 0.0.0.0/0
+    - security_group: apps
+      protocol: tcp
+      port_range_min: 8080
+      port_range_max: 8080
+      remote_ip_prefix: 0.0.0.0/0
+    - security_group: db
+      protocol: tcp
+      port_range_min: 5432
+      port_range_max: 5432
+      remote_ip_prefix: 0.0.0.0/0
+    - security_group: frontend
+      protocol: tcp
+      port_range_min: 80
+      port_range_max: 80
+      remote_ip_prefix: 0.0.0.0/0
+
+
+nova:
+  flavors:
+    - name: m2.small
+      ram: 2048
+      vcpus: 1
+      disk: 10
+
+

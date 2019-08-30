@@ -1,3 +1,6 @@
 - src: https://github.com/geerlingguy/ansible-role-postgresql
   version: master
   name: geerlingguy.postgresql
+- src: https://github.com/gnuthought/ansible-role-openshift-provision
+  version: master
+  name: ansible-role-openshift-provision

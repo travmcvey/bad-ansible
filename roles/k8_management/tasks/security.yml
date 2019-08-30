@@ -1,0 +1,14 @@
+---
+
+# Default security related items to secure an OpenShift cluster
+
+- name: Remove default k8 admin per https://docs.openshift.com/container-platform/4.1/authentication/remove-kubeadmin.html
+  k8s:
+    api_key: "{{ token }}"
+    state: absent
+    definition:
+      apiVersion: v1
+      kind: secret
+      metadata:
+        name: kubeadmin
+        namespace: kube-system

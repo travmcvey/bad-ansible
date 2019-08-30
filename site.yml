@@ -1,4 +1,4 @@
-- import_playbook: main.yml
+- import_playbook: 3tierapp.yml
   vars:
     app_port: 8080
     GUID: 6169

@@ -1,3 +1,26 @@
+== K8 Management
+
+K8 Management role was the final lab of the bad ansible series and requires initial setup to be configured.
+First the OpenTLC lab OpenShift configuration needs to be deployed, then your ssh-key copied over to it.
+Next we need to create a service account to interact with the cluster. TODO: Makefile
+
+clientvm is in my ssh.cfg as the bastion host provisioned.
+
+```
+ansible -m ping clientvm
+ansible -m command -a "oc create sa k8mgmt -n default" clientvm
+ansible -m command -a "oc adm policy add-cluster-role-to-user cluster-admin system:serviceaccount:default:k8mgmt" clientvm
+ansible -m command -a "oc adm policy add-role-to-user prometheus-k8s system:serviceaccount:default:k8mgmt" clientvm
+ansible -m command -a "oc sa get-token k8mgmt" clientvm
+```
+Create a vault password file 
+Create an Ansible Vault with the following:
+```
+token: <k8token from final ansible command>
+```
+
+Defaults in the k8_management role are as an example.. This should be also placed in the vault and used with the function.
+
 == Overview
 
 Bad Ansible is a deliberately poorly constructed ansible project designed to give students a basic project to cleanup, refactor, and improve. It represents a newcomer's, aka _newbie_, approach to hacking together a functional playbook to deploy a three tier app.
@@ -97,3 +120,164 @@ NOTE: You can easily test your chosen `ssh` config file e.g. `ssh -F ssh.cfg app
 . Identify the key roles e.g. common, frontends, apps, database etc
 . Convert the relevant plays into roles
 . Create wrapping playbook with multiple *plays* invoking *roles* on *groups*
+
+
+
+=== Configuring PostGres HA
+
+ansible-galaxy install samdoran.pgsql_replication -p roles
+
+cat << EOF > pg_inventory
+[tower]
+tower1.<GUID>.internal
+tower2.<GUID>.internal
+tower3.<GUID>.internal
+[database]
+support1.<GUID>.internal pgsqlrep_role=master
+
+[database_replica]
+support2.<GUID>.internal pgsqlrep_role=replica
+EOF
+
+vi roles/samdoran.pgsql_replication/tasks/master.yml
+```
+vars:
+    pgsqlrep_replica_address: "{{ groups[pgsqlrep_group_name] | map('extract', hostvars, 'ansible_all_ipv4_addresses') | flatten }}"
+```
+```
+cat << EOF > postgres.yml
+- name: Configure PostgreSQL streaming replication
+  hosts: database_replica
+
+  tasks:
+    - name: Find recovery.conf
+      find:
+        paths: /var/lib/pgsql
+        recurse: yes
+        patterns: recovery.conf
+      register: recovery_conf_path
+
+    - name: Remove recovery.conf
+      file:
+        path: "{{ item.path }}"
+        state: absent
+      loop: "{{ recovery_conf_path.files }}"
+
+    - name: Add replica to database group
+      add_host:
+        name: "{{ inventory_hostname }}"
+        groups: database
+      tags:
+        - always
+
+    - import_role:
+        name: nginx
+      vars:
+        nginx_exec_vars_only: yes
+
+    - import_role:
+        name: repos_el
+      when: ansible_os_family == "RedHat"
+
+    - import_role:
+        name: packages_el
+      vars:
+        packages_el_install_tower: no
+        packages_el_install_postgres: yes
+      when: ansible_os_family == "RedHat"
+
+    - import_role:
+        name: postgres
+      vars:
+        postgres_allowed_ipv4: "0.0.0.0/0"
+        postgres_allowed_ipv6: "::/0"
+        postgres_username: "REPLACEME"
+        postgres_password: "REPLACEME!"
+        postgres_database: "REPLACEME"
+        max_postgres_connections: 1024
+        postgres_shared_memory_size: "{{ (ansible_memtotal_mb*0.3)|int }}"
+        postgres_work_mem: "{{ (ansible_memtotal_mb*0.03)|int }}"
+        postgres_maintenance_work_mem: "{{ (ansible_memtotal_mb*0.04)|int }}"
+      tags:
+        - postgresql_database
+
+    - import_role:
+        name: firewall
+      vars:
+        firewalld_http_port: "{{ nginx_http_port }}"
+        firewalld_https_port: "{{ nginx_https_port }}"
+      tags:
+        - firewall
+      when: ansible_os_family == 'RedHat'
+
+- name: Configure PSQL master server
+  hosts: database[0]
+
+  vars:
+    pgsqlrep_master_address: "{{ hostvars[groups[pgsqlrep_group_name_master][0]].ansible_all_ipv4_addresses[-1] }}"
+    pgsqlrep_replica_address: "{{ hostvars[groups[pgsqlrep_group_name][0]].ansible_all_ipv4_addresses[-1] }}"
+
+  tasks:
+    - import_role:
+        name: samdoran.pgsql_replication
+
+- name: Configure PSQL replica
+  hosts: database_replica
+
+  vars:
+    pgsqlrep_master_address: "{{ hostvars[groups[pgsqlrep_group_name_master][0]].ansible_all_ipv4_addresses[-1] }}"
+    pgsqlrep_replica_address: "{{ hostvars[groups[pgsqlrep_group_name][0]].ansible_all_ipv4_addresses[-1] }}"
+
+  tasks:
+    - import_role:
+        name: samdoran.pgsql_replication
+EOF
+```
+
+ansible-playbook -b -i pg_inventory postgres.yml -e pgsqlrep_password=
+
+```
+cat << EOF > postgres_failover.yml
+- name: Gather facts
+  hosts: all
+  become: yes
+
+- name: Failover PostgreSQL
+  hosts: database_replica
+  become: yes
+
+  tasks:
+    - name: Get the current PostgreSQL Version
+      import_role:
+        name: samdoran.pgsql_replication
+        tasks_from: pgsql_version.yml
+
+    - name: Promote secondary PostgreSQL server to primary
+      command: /usr/pgsql-{{ pgsql_version }}/bin/pg_ctl promote
+      become_user: postgres
+      environment:
+        PGDATA: /var/lib/pgsql/{{ pgsql_version }}/data
+      ignore_errors: yes
+
+- name: Update Ansible Tower database configuration
+  hosts: tower
+  become: yes
+
+  tasks:
+    - name: Update Tower postgres.py
+      lineinfile:
+        dest: /etc/tower/conf.d/postgres.py
+        regexp: "^(.*'HOST':)"
+        line: "\\1 '{{ hostvars[groups['database_replica'][0]].ansible_default_ipv4.address }}',"
+        backrefs: yes
+      notify: restart tower
+
+  handlers:
+    - name: restart tower
+      command: ansible-tower-service restart
+EOF
+```
+Make sure the line in regexp has 2 \\
+
+
+ansible-playbook -b -i pg_inventory postgres_failover.yml -e pgsqlrep_password=

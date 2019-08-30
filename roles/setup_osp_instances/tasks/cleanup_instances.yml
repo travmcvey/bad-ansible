@@ -1,0 +1,7 @@
+---
+# Delete instances passed in, by default we use the instances in the defaults/main.yml
+- name: Delete a server instance
+  os_server:
+    name: "{{ item.name }}"
+    state: absent
+  loop: "{{ instances }}"

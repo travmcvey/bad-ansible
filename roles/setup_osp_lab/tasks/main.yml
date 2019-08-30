@@ -1,0 +1,14 @@
+---
+# tasks file for setup_osp_lab
+- name: Configure Keystone
+  include_tasks: keystone.yml
+  
+- name: Configure images
+  include_tasks: glance.yml
+
+- name: Configure networking
+  include_tasks: neutron.yml
+
+- name: Configure nova
+  include_tasks: nova.yml
+

@@ -1,0 +1,18 @@
+---
+# tasks file for k8_management
+
+- name: test our module
+  oc_adm_policy:
+    user: test
+    cluster_role: admin
+  register: r_test
+
+- name: Debug!
+  debug:
+    var: r_test
+
+- name: Do Security things
+  include_tasks: security.yml
+
+- name: Do htpassword things
+  include_tasks: htpassword.yml
